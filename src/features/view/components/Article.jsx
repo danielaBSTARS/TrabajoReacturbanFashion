@@ -1,3 +1,4 @@
+```jsx
 import React, { useState, useEffect } from "react";
 import {
   Box,
@@ -128,8 +129,6 @@ const articles = [
   },
 ];
 
-
-
 /* ============================= */
 /*          COMPONENTE           */
 /* ============================= */
@@ -186,7 +185,7 @@ export const Article = () => {
 
         <Grid container spacing={4} justifyContent="center">
           {filteredArticles.map((article) => (
-            <Grid item xs={12} sm={6} md={4} key={article.id}>
+            <Grid item xs={4} sm={4} md={3} key={article.id}>
               <Card
                 sx={{
                   position: "relative",
@@ -265,3 +264,4 @@ export const Article = () => {
     </Box>
   );
 };
+```
