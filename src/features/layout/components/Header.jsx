@@ -1,17 +1,17 @@
 import * as React from "react";
-import { NavLink, useNavigate } from "react-router-dom"; // agregado useNavigate
+import { NavLink, useNavigate } from "react-router-dom";
 
-// MUI ICONS
+// ICONS
 import HomeIcon from "@mui/icons-material/Home";
 import ArticleIcon from "@mui/icons-material/Article";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import PersonIcon from "@mui/icons-material/Person";
-import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import SearchIcon from "@mui/icons-material/Search";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import MenuIcon from "@mui/icons-material/Menu";
 
-// MUI COMPONENTS
+// MUI
 import {
   AppBar,
   Toolbar,
@@ -21,20 +21,27 @@ import {
   Box,
   TextField,
   InputAdornment,
-  Badge
+  Badge,
+  IconButton,
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText
 } from "@mui/material";
 
-// MUI COLORS
-import { brown, purple } from "@mui/material/colors";
+import { brown } from "@mui/material/colors";
 
 export const Header = () => {
 
   const [cart, setCartCount] = React.useState(0);
+  const [search, setSearch] = React.useState("");
+  const [openMenu, setOpenMenu] = React.useState(false);
 
-  const navigate = useNavigate(); // agregado
-  const [search, setSearch] = React.useState(""); // agregado
+  const navigate = useNavigate();
 
-  const handleSearch = (e) => { // agregado
+  const handleSearch = (e) => {
     e.preventDefault();
     if (search.trim() !== "") {
       navigate(`/search/${search}`);
@@ -58,16 +65,31 @@ export const Header = () => {
 
   }, []);
 
+  const menuItems = [
+    { text: "Inicio", icon: <HomeIcon />, to: "/" },
+    { text: "Artículos", icon: <ArticleIcon />, to: "/article" },
+    { text: "Ofertas", icon: <LocalOfferIcon />, to: "/offers" },
+    { text: "Mi Cuenta", icon: <PersonIcon />, to: "/account" },
+    { text: "Favoritos", icon: <FavoriteIcon />, to: "/favorites" },
+    { text: "Carrito", icon: <ShoppingCartIcon />, to: "/cart" }
+  ];
+
   return (
     <>
       <AppBar
         position="fixed"
         elevation={4}
-        sx={{
-          backgroundColor: brown[600],
-        }}
+        sx={{ backgroundColor: brown[600] }}
       >
         <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
+
+          {/* MENU HAMBURGUESA (SOLO CELULAR) */}
+          <IconButton
+            sx={{ display: { xs: "flex", md: "none" }, color: "white" }}
+            onClick={() => setOpenMenu(true)}
+          >
+            <MenuIcon />
+          </IconButton>
 
           {/* LOGO */}
           <Typography
@@ -75,29 +97,24 @@ export const Header = () => {
             sx={{
               fontWeight: "bold",
               letterSpacing: 1,
-              mr: 3,
             }}
           >
             𝓤𝓻𝓫𝓪𝓷 𝓕𝓪𝓼𝓱𝓲𝓸𝓷
           </Typography>
 
-          {/* LEFT SIDE NAVIGATION */}
-          <Stack direction="row" spacing={1}>
-
-            {[
-              { text: "Inicio", icon: <HomeIcon />, to: "/" },
-              { text: "Artículos", icon: <ArticleIcon />, to: "/article" },
-              { text: "Ofertas", icon: <LocalOfferIcon />, to: "/offers" },
-              { text: "Mi Cuenta", icon: <PersonIcon />, to: "/account" },
-              { text: "Favoritos", icon: <FavoriteIcon />, to: "/favorites" },
-              { icon: <ShoppingCartIcon />, to: "/cart" },
-            ].map((item) => (
+          {/* MENU DESKTOP */}
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{ display: { xs: "none", md: "flex" } }}
+          >
+            {menuItems.map((item) => (
               <Button
                 key={item.text}
                 component={NavLink}
                 to={item.to}
                 startIcon={
-                  item.icon && item.to === "/cart" ? (
+                  item.to === "/cart" ? (
                     <Badge badgeContent={cart} color="error">
                       {item.icon}
                     </Badge>
@@ -108,29 +125,21 @@ export const Header = () => {
                 sx={{
                   color: "white",
                   textTransform: "none",
-                  fontWeight: 500,
                   borderRadius: 2,
-                  px: 2,
-                  "&:hover": {
-                    backgroundColor: brown[600],
-                  },
-                  "&.active": {
-                    backgroundColor: brown[600],
-                  },
+                  px: 2
                 }}
               >
                 {item.text}
               </Button>
             ))}
-
           </Stack>
 
-          {/* RIGHT SIDE - SEARCH */}
+          {/* SEARCH */}
           <Box
             component="form"
-            onSubmit={handleSearch} // agregado
+            onSubmit={handleSearch}
             sx={{
-              display: "flex",
+              display: { xs: "none", md: "flex" },
               alignItems: "center",
               backgroundColor: "white",
               borderRadius: 3,
@@ -142,8 +151,8 @@ export const Header = () => {
               size="small"
               variant="standard"
               placeholder="Buscar productos..."
-              value={search} // agregado
-              onChange={(e) => setSearch(e.target.value)} // agregado
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
               InputProps={{
                 disableUnderline: true,
                 startAdornment: (
@@ -155,16 +164,13 @@ export const Header = () => {
             />
 
             <Button
-              type="submit" // agregado
+              type="submit"
               variant="contained"
               sx={{
                 ml: 2,
                 backgroundColor: brown[700],
                 borderRadius: 3,
-                textTransform: "none",
-                "&:hover": {
-                  backgroundColor: brown[900],
-                },
+                textTransform: "none"
               }}
             >
               Buscar
@@ -174,7 +180,39 @@ export const Header = () => {
         </Toolbar>
       </AppBar>
 
-      {/* Espaciador */}
+      {/* MENU DESPLEGABLE */}
+      <Drawer
+        anchor="left"
+        open={openMenu}
+        onClose={() => setOpenMenu(false)}
+      >
+        <Box sx={{ width: 250 }}>
+
+          <List>
+            {menuItems.map((item) => (
+              <ListItem key={item.text} disablePadding>
+
+                <ListItemButton
+                  component={NavLink}
+                  to={item.to}
+                  onClick={() => setOpenMenu(false)}
+                >
+
+                  <ListItemIcon>
+                    {item.icon}
+                  </ListItemIcon>
+
+                  <ListItemText primary={item.text} />
+
+                </ListItemButton>
+
+              </ListItem>
+            ))}
+          </List>
+
+        </Box>
+      </Drawer>
+
       <Toolbar />
     </>
   );
