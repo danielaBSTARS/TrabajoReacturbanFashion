@@ -21,8 +21,6 @@ import {
 } from "@mui/material";
 
 function App() {
-
-
   return (
     <>
     <HashRouter>
